@@ -6,9 +6,10 @@ from paddle import Paddle
 from ball import Ball
 from frame import Frame
 from os import system
-from time import sleep
+from time import sleep, time
 import input
 
+config.START_TIME = time() # in seconds
 # initialize objects of the game
 paddle1 = Paddle()
 ball1 = Ball()

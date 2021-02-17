@@ -3,6 +3,7 @@
 import config
 import paddle
 from colorama import Fore
+from time import time
 class Frame:
     def __init__(self, width, height):
         self.width = config.FRAME_WIDTH
@@ -19,6 +20,9 @@ class Frame:
             self.matrix[i][self.width-1] = '|'
 
     def setScoreBox(self, ball1):
+        config.FRAME_COUNT += 1
+        current_time = time()
+        time_elapsed = current_time - config.START_TIME
         for i in range(config.SCORE_BOX_HEIGHT):
             for j in range(config.FRAME_WIDTH):
                 if j == 0 or j==config.FRAME_WIDTH - 1:
@@ -33,6 +37,8 @@ class Frame:
         lifeCountString = 'Available Lives: ' + str(ball1.life)
         velXString = 'Velocity of ball (Horizontal): ' + str(ball1.velX)
         velYString = 'Velocity of ball (Vertical): ' + str(ball1.velY)
+        frameCountString = 'Frame count: ' + str(config.FRAME_COUNT)
+        timeElapsedString = 'Time elapsed(in S): ' + str(round(time_elapsed, 2))
         for i in range(len(config.GAME_NAME)):
             self.score_matrix[1][(config.FRAME_WIDTH - len(config.GAME_NAME))//2 + i] = config.GAME_NAME[i]
         for i in range(len(scoreString)):
@@ -45,8 +51,12 @@ class Frame:
             self.score_matrix[3][config.FRAME_WIDTH - 2 - len(totalScoreString) + i] = totalScoreString[i]
         for i in range(len(velXString)):
             self.score_matrix[4][i+1] = velXString[i]
+        for i in range(len(frameCountString)):
+            self.score_matrix[4][config.FRAME_WIDTH - 2 - len(frameCountString) + i] = frameCountString[i]
         for i in range(len(velYString)):
             self.score_matrix[5][i+1] = velYString[i]
+        for i in range(len(timeElapsedString)):
+            self.score_matrix[5][config.FRAME_WIDTH - 2 - len(timeElapsedString) + i] = timeElapsedString[i]
 
     def setBoard(self, ball1):
         for i in range(1, self.width-1):
@@ -77,6 +87,8 @@ class Frame:
             self.matrix[ball1.y][ball1.x + i] = ball1.shape[i]
 
     def printFrame(self, brick_array, ball1):
+        # time elapsed and frame count will be set by setScoreBox function
+
         # Printing Score Box
         self.setScoreBox(ball1)
         for i in range(config.SCORE_BOX_HEIGHT):

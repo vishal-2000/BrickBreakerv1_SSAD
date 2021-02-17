@@ -19,13 +19,40 @@ class Frame:
             self.matrix[i][self.width-1] = '|'
 
     def setScoreBox(self, ball1):
-        pass
+        for i in range(config.SCORE_BOX_HEIGHT):
+            for j in range(config.FRAME_WIDTH):
+                if j == 0 or j==config.FRAME_WIDTH - 1:
+                    self.score_matrix[i][j] = '|'
+                elif i==0 or i==config.SCORE_BOX_HEIGHT-1:
+                    self.score_matrix[i][j] = '-'
+                else:
+                    self.score_matrix[i][j] = ' '
+        scoreString = 'Score: ' + str(ball1.score)
+        penaltyString = 'Penalty: ' + str(int(ball1.penalty))
+        totalScoreString = 'Total Score: ' + str(ball1.score - int(ball1.penalty))
+        lifeCountString = 'Available Lives: ' + str(ball1.life)
+        velXString = 'Velocity of ball (Horizontal): ' + str(ball1.velX)
+        velYString = 'Velocity of ball (Vertical): ' + str(ball1.velY)
+        for i in range(len(config.GAME_NAME)):
+            self.score_matrix[1][(config.FRAME_WIDTH - len(config.GAME_NAME))//2 + i] = config.GAME_NAME[i]
+        for i in range(len(scoreString)):
+            self.score_matrix[2][i+1] = scoreString[i]
+        for i in range(len(lifeCountString)):
+            self.score_matrix[2][config.FRAME_WIDTH - 2 - len(lifeCountString) + i] = lifeCountString[i]
+        for i in range(len(penaltyString)):
+            self.score_matrix[3][i+1] = penaltyString[i]
+        for i in range(len(totalScoreString)):
+            self.score_matrix[3][config.FRAME_WIDTH - 2 - len(totalScoreString) + i] = totalScoreString[i]
+        for i in range(len(velXString)):
+            self.score_matrix[4][i+1] = velXString[i]
+        for i in range(len(velYString)):
+            self.score_matrix[5][i+1] = velYString[i]
 
     def setBoard(self, ball1):
         for i in range(1, self.width-1):
             self.matrix[config.FRAME_HEIGHT - config.BOTTOM_EMPTY_SPACE][i] = ' '
         for i in range(config.BALL_WIDTH):
-            if ball1.y <= 1 or ball1.x > config.FRAME_WIDTH - 2:
+            if ball1.y < 1 or ball1.x > config.FRAME_WIDTH - 2:
                 print("Invalid ball position 1")
                 exit(1)
             self.matrix[ball1.y][ball1.x + i] = ' '
@@ -44,15 +71,18 @@ class Frame:
     def setBall(self, ball1):
         #self.setBoard()
         for i in range(ball1.width):
-            if ball1.y <= 1 or ball1.x + i > config.FRAME_WIDTH - 2:
+            if ball1.y < 1 or ball1.x + i > config.FRAME_WIDTH - 2:
                 print("Invalid ball position 2")
                 exit(1)
             self.matrix[ball1.y][ball1.x + i] = ball1.shape[i]
 
-    def printFrame(self, brick_array):
+    def printFrame(self, brick_array, ball1):
         # Printing Score Box
-
-
+        self.setScoreBox(ball1)
+        for i in range(config.SCORE_BOX_HEIGHT):
+            for j in range(config.FRAME_WIDTH):
+                print(self.score_matrix[i][j], end='')
+            print('')
         # Printing Game Box
         brick_iterator = 0 # implies the iterator is at first brick
         for i in range(self.height):

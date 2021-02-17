@@ -23,7 +23,7 @@ createMapLevel1(brick_array)
 frame1.setBoard(ball1)
 frame1.setPaddle(paddle1)
 frame1.setBall(ball1)
-frame1.printFrame(brick_array)
+frame1.printFrame(brick_array, ball1)
 
 # switching off the cursor
 system('setterm -cursor off')
@@ -37,8 +37,6 @@ while(1):
     if c=='\x03':
         system('setterm -cursor on')
         break
-    else:
-        print(c)
     if c==' ':
         ball1.releaseBall()
     elif c=='d':
@@ -49,11 +47,28 @@ while(1):
     ball1.moveBall(c) # now move ball
     game_over = ball1.checkCollision(paddle1, brick_array)
     if game_over == True:
-        system('clear')
-        print('G A M E O V E R')
-        sleep(1)
-        system('setterm -cursor on')
-        exit(1)
+        ball1.life -= 1
+        if ball1.life==0:
+            system('clear')
+            frame1.printFrame(brick_array, ball1)
+            print('G A M E O V E R')
+            sleep(1)
+            system('setterm -cursor on')
+            exit(1)
+        else:
+            frame1.printFrame(brick_array, ball1)
+            sleep(1)
+            frame1 = Frame(config.FRAME_WIDTH, config.FRAME_HEIGHT)
+            createMapLevel1(brick_array)
+            ball1.x = config.BALL_INITIAL_POS[0]
+            ball1.y = config.BALL_INITIAL_POS[1]
+            ball1.velY = config.BALL_INIT_VEL[0]
+            ball1.velX = config.BALL_INIT_VEL[1]
+            ball1.ballGrabbed = True
+            paddle1.x = config.PADDLE_INITIAL_POS[0]
+            paddle1.y = config.PADDLE_INITIAL_POS[1]
+
+
     frame1.setPaddle(paddle1) # set paddle
     frame1.setBall(ball1) # set ball
-    frame1.printFrame(brick_array)
+    frame1.printFrame(brick_array, ball1)

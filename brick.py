@@ -19,14 +19,14 @@ class Brick:
             self.color = "NONE" # implies the brick is broken
 
     def handleCollision(self):
-        if self.color == "WHITE":
+        if self.color == "WHITE" or self.color == "NONE":
             return
-        elif self.color == "RED":
-            self.color = "BLUE"
+        if self.color == "GREEN":
+            self.color = "NONE"
         elif self.color == "BLUE":
             self.color = "GREEN"
-        elif self.color == "GREEN":
-            self.color = "NONE"
+        elif self.color == "RED":
+            self.color = "BLUE"
         self.strength -= 1
 
 

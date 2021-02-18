@@ -14,7 +14,7 @@ class Paddle:
 
     def moveRight(self):
         self.x = self.x + 1
-        if self.x + config.PADDLE_WIDTH >= config.FRAME_WIDTH:
+        if self.x + self.width >= config.FRAME_WIDTH:
             #print('Invalid move')
             self.x = self.x - 1
             #sleep(2)

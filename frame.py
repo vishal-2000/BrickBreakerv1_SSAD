@@ -31,10 +31,11 @@ class Frame:
                     self.score_matrix[i][j] = '-'
                 else:
                     self.score_matrix[i][j] = ' '
-        scoreString = 'Score: ' + str(ball1.score)
-        penaltyString = 'Penalty: ' + str(int(ball1.penalty))
-        totalScoreString = 'Total Score: ' + str(ball1.score - int(ball1.penalty))
-        lifeCountString = 'Available Lives: ' + str(ball1.life)
+        scoreString = 'Score: ' + str(config.SCORE)
+        penaltyString = 'Penalty: ' + str(int(config.PENALTY))
+        config.TOTAL_SCORE = config.SCORE - int(config.PENALTY)
+        totalScoreString = 'Total Score: ' + str(config.TOTAL_SCORE)
+        lifeCountString = 'Available Lives: ' + str(config.NO_OF_LIVES)
         velXString = 'Velocity of ball (Horizontal): ' + str(ball1.velX)
         velYString = 'Velocity of ball (Vertical): ' + str(ball1.velY)
         frameCountString = 'Frame count: ' + str(config.FRAME_COUNT)
@@ -58,14 +59,24 @@ class Frame:
         for i in range(len(timeElapsedString)):
             self.score_matrix[5][config.FRAME_WIDTH - 2 - len(timeElapsedString) + i] = timeElapsedString[i]
 
-    def setBoard(self, ball1):
+    def setBoard(self, ball_array, powerup_array):
         for i in range(1, self.width-1):
             self.matrix[config.FRAME_HEIGHT - config.BOTTOM_EMPTY_SPACE][i] = ' '
-        for i in range(config.BALL_WIDTH):
-            if ball1.y < 1 or ball1.x > config.FRAME_WIDTH - 2:
-                print("Invalid ball position 1")
-                exit(1)
-            self.matrix[ball1.y][ball1.x + i] = ' '
+        for balli in ball_array:
+            for i in range(config.BALL_WIDTH):
+                if balli.y < 1 or balli.x > config.FRAME_WIDTH - 2:
+                    if balli.alive == True:
+                        print("Invalid ball position 1")
+                        exit(1)
+                else:
+                    if balli.alive == True:
+                        self.matrix[balli.y][balli.x + i] = ' '
+        for powerup in powerup_array:
+            if powerup.appear == False:
+                continue
+            else:
+                for j in range(config.POWERUP_WIDTH):
+                    self.matrix[powerup.y][powerup.x + j] = ' '
         #for i in range(self.width):
         #    self.matrix[0][i] = '-'
         #    self.matrix[self.height-1][i] = '-'
@@ -78,19 +89,31 @@ class Frame:
         for i in range(paddle1.width):
             self.matrix[config.FRAME_HEIGHT - config.BOTTOM_EMPTY_SPACE][paddle1.x + i] = paddle1.shape[i]
 
-    def setBall(self, ball1):
+    def setBall(self, ball_array):
         #self.setBoard()
-        for i in range(ball1.width):
-            if ball1.y < 1 or ball1.x + i > config.FRAME_WIDTH - 2:
-                print("Invalid ball position 2")
-                exit(1)
-            self.matrix[ball1.y][ball1.x + i] = ball1.shape[i]
+        for balli in ball_array:
+            if balli.alive == True:
+                for i in range(balli.width):
+                    if balli.alive == False:
+                        continue
+                    if balli.y < 1 or balli.x + i > config.FRAME_WIDTH - 2:
+                        print("Invalid ball position 2")
+                        exit(1)
+                    self.matrix[balli.y][balli.x + i] = balli.shape[i]
 
-    def printFrame(self, brick_array, ball1):
+    def setPowerUp(self, powerup_array):
+        for powerup in powerup_array:
+            if powerup.appear == True:
+                for i in range(len(powerup.shape)):
+                    self.matrix[powerup.y][powerup.x + i] = powerup.shape[i]
+
+    def printFrame(self, brick_array, ball_array):
+
         # time elapsed and frame count will be set by setScoreBox function
-
+        # calculating penalty
+        config.PENALTY = int(config.FRAME_COUNT//config.FRAME_RATE)
         # Printing Score Box
-        self.setScoreBox(ball1)
+        self.setScoreBox(ball_array[0])
         for i in range(config.SCORE_BOX_HEIGHT):
             for j in range(config.FRAME_WIDTH):
                 print(self.score_matrix[i][j], end='')
@@ -126,92 +149,3 @@ class Frame:
                     print(Fore.WHITE + self.matrix[i][j], end ="")
             print('')
             
-            
-
-
-'''
-import curses
-from curses import textpad
-import random
-
-def create_food(snake, box):
-    food = None
-    while food is None:
-        food = [random.randint(box[0][0] + 1, box[1][0] - 1), 
-                random.randint(box[0][1] + 1, box[1][1] - 1)]
-        if food in snake:
-            food = None
-    return food
-
-def print_score(stdscr, score):
-    sh, sw = stdscr.getmaxyx()
-    score_text = "Score: {}".format(score)
-    stdscr.addstr(0, sw//2 - len(score_text)//2, score_text)
-    stdscr.refresh()
-
-def main(stdscr):
-    curses.curs_set(0)
-    stdscr.nodelay(1)
-    stdscr.timeout(150)
-
-
-    sh, sw = stdscr.getmaxyx()
-    box = [[3, 3], [sh-3, sw-3]]
-    textpad.rectangle(stdscr, box[0][0], box[0][1], box[1][0], box[1][1])
-    snake = [[sh//2, sw//2 + 1], [sh//2, sw//2], [sh//2, sw//2 - 1], [sh//2, sw//2 - 2], [sh//2, sw//2 - 3], [sh//2, sw//2 - 4]]
-    direction = curses.KEY_RIGHT
-
-    for y, x in snake:
-        stdscr.addstr(y, x, '>')
-    
-    food = create_food(snake, box)
-    stdscr.addstr(food[0], food[1], '+')
-
-    score = 0
-    print_score(stdscr, score)
-    
-    while 1:
-        key = stdscr.getch()
-        if key in [curses.KEY_RIGHT, curses.KEY_LEFT, curses.KEY_UP, curses.KEY_DOWN]:
-            direction = key
-        new_head = head = snake[0]
-        #new_head = head
-        if direction == curses.KEY_RIGHT:
-            new_head = [head[0], head[1]+1]
-        elif direction == curses.KEY_LEFT:
-            new_head = [head[0], head[1]-1]
-        elif direction == curses.KEY_UP:
-            new_head = [head[0]-1, head[1]]
-        elif direction == curses.KEY_DOWN:
-            new_head = [head[0]+1, head[1]]
-            
-
-        snake.insert(0, new_head)
-        stdscr.addstr(new_head[0], new_head[1], '>')
-
-        #stdscr.addstr(snake[-1][0], snake[-1][1], ' ')
-        #snake.pop()
-
-        if snake[0]==food:
-            food = create_food(snake, box)
-            stdscr.addstr(food[0], food[1], '+')
-            score += 1
-            print_score(stdscr, score)
-        else:
-            stdscr.addstr(snake[-1][0], snake[-1][1], ' ')
-            snake.pop()
-
-        if (snake[0][0] in [box[0][0], box[1][0]] or 
-            snake[0][1] in [box[0][1], box[1][1]] or
-            snake[0] in snake[1:]):
-            msg = "GAME OVER!"
-            stdscr.addstr(sh//2, sw//2 - len(msg)//2, msg)
-            stdscr.nodelay(0)
-            stdscr.getch()
-            break
-
-        stdscr.refresh()
-
-
-curses.wrapper(main)
-'''

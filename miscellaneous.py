@@ -17,4 +17,5 @@ def gameWon():
     print('Congratulations! You have completed the game the above game box shows your final score')
     print('Hope you have enjoyed, thank you!')
     sleep(2)
+    system('setterm -cursor on')
     exit(1)

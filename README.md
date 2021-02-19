@@ -15,6 +15,7 @@ The Brick Breaker Game using python3 and OOPS concepts (DASS course assignment (
 ## Lives
 - You will be given 3 lives
 - No penalty incurred if you lose a life
+- When you lose your life, all the active powerups will be deactivated
 
 ## Bricks
 - White bricks are unbreakable

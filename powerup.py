@@ -103,11 +103,13 @@ class FbPowerUp(PowerUp):
         self.shape = config.FB_POWERUP_SHAPE
     def activatePowerUp(self, paddle1, ball_array):
         for ball1 in ball_array:
-            ball1.velY = (ball1.velY//abs(ball1.velY)) * abs(config.BALL_FAST_VEL[1])
+            if ball1.velY!=0:
+                ball1.velY = (ball1.velY//abs(ball1.velY)) * abs(config.BALL_FAST_VEL[1])
         super().activatePowerUp(paddle1, ball_array)
     def deactivatePowerUp(self, paddle1, ball_array):
         for ball1 in ball_array:
-            ball1.velY = (ball1.velY//abs(ball1.velY)) * abs(config.BALL_INIT_VEL[1])
+            if ball1.velY!=0:
+                ball1.velY = (ball1.velY//abs(ball1.velY)) * abs(config.BALL_INIT_VEL[1])
         return super().deactivatePowerUp(paddle1, ball_array)
 
 class TbPowerUp(PowerUp):

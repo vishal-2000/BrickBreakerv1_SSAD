@@ -95,6 +95,10 @@ while(1):
         #ball1.ballGrabbed = True
         paddle1.x = config.PADDLE_INITIAL_POS[0]
         paddle1.y = config.PADDLE_INITIAL_POS[1]
+        # deactivate the active powerups
+        for powerup in powerup_array:
+            powerup.deactivatePowerUp(paddle1, ball_array)
+
 
 
     frame1.setPaddle(paddle1) # set paddle

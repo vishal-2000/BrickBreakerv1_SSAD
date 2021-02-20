@@ -135,6 +135,8 @@ class Frame:
                                     print(Fore.BLUE + brick_array[brick_iterator].shape[k], end="")
                                 elif brick_array[brick_iterator].color == "GREEN":
                                     print(Fore.GREEN + brick_array[brick_iterator].shape[k], end="")
+                                elif brick_array[brick_iterator].color == "YELLOW":
+                                    print(Fore.YELLOW + brick_array[brick_iterator].shape[k], end="")
                                 elif brick_array[brick_iterator].color == "WHITE":
                                     print(Fore.WHITE + brick_array[brick_iterator].shape[k], end="")
                                 elif brick_array[brick_iterator].color == "NONE":  # Indicates broken brick

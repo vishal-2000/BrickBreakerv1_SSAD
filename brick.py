@@ -16,13 +16,13 @@ class Brick:
             self.color = "BLUE"
         elif self.color == "BLUE":
             self.color = "GREEN"
-        elif self.color == "GREEN":
+        elif self.color == "GREEN" or self.color == "YELLOW":
             self.color = "NONE" # implies the brick is broken
 
     def handleCollision(self):
         if self.color == "WHITE" or self.color == "NONE":
             return
-        if self.color == "GREEN":
+        if self.color == "GREEN" or self.color == "YELLOW":
             self.color = "NONE"
             if self.powerup_associated!=None:
                 (self.powerup_associated).releasePowerUp()
@@ -33,6 +33,8 @@ class Brick:
             self.color = "BLUE"
         self.strength -= 1
     def brickSmash(self): # used in case of thru ball
+        if self.color == "NONE":
+            return None
         self.color = "NONE"
         self.strength = 0
         if self.powerup_associated!=None:
@@ -59,3 +61,8 @@ class WhiteBrick(Brick):
     def __init__(self, x, y, powerup_associated = None):
         Brick.__init__(self, -1, x, y, powerup_associated) # strength = 3 # no of collisions required to break the brick
         self.color = "WHITE"
+
+class ExplodingBrick(Brick):
+    def __init__(self, x, y, powerup_associated = None):
+        Brick.__init__(self, 1, x, y, powerup_associated)
+        self.color = "YELLOW"

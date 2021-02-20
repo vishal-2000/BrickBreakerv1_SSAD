@@ -1,4 +1,6 @@
+import queue
 import config
+from queue import Queue
 
 class Ball:
     def __init__(self):
@@ -26,6 +28,33 @@ class Ball:
         #self.__frameCount = 0 # to ensure that the ball moves immediately after release
         self.ballGrabbed = False
 
+    def handleExplodingBrickCollision(self, brick_array, brick1, powerup_array):
+        config.SCORE += brick1.strength * 10
+        powerup = brick1.brickSmash()
+        if powerup!=None:
+            powerup_array.append(powerup)
+        q = Queue()
+        q.put(brick1)
+        while not q.empty():
+            bricki = q.get()
+            for brick in brick_array:
+                if brick.color == "NONE":
+                    continue
+                if( 
+                    (brick.y == bricki.y and 
+                    ((brick.x + config.BRICK_WIDTH == bricki.x) or (bricki.x + config.BRICK_WIDTH == brick.x)))
+                    or
+                    (((brick.y - 1 == bricki.y) or (brick.y + 1 == bricki.y)) and
+                    (brick.x + config.BRICK_WIDTH >= bricki.x and brick.x <= bricki.x + config.BRICK_WIDTH))
+                ):
+                    if brick.color == "YELLOW" and brick.strength != 0:
+                        #print('Hi --->')
+                        q.put(brick)
+                    config.SCORE += brick.strength * 10
+                    powerup = brick.brickSmash()
+                    if powerup!=None:
+                        powerup_array.append(powerup)
+
     def checkBrickCollision(self, brick_array, powerup_array):
         horizontal_collision = False
         vertical_collision = False
@@ -33,34 +62,48 @@ class Ball:
             if brick.color != "NONE":
                 if brick.y == self.y and ((brick.x - config.BALL_WIDTH ==  self.x and self.velX > 0) or (brick.x + config.BRICK_WIDTH ==self.x and self.velX < 0)): # horizontal collision with the brick
                     if self.thruBall == True:
-                        if brick!="WHITE":
-                            config.SCORE = config.SCORE + 10 * brick.strength
-                        powerup = brick.brickSmash()
-                        if powerup!=None:
-                            powerup_array.append(powerup)
-                        continue
+                        if brick.color == "YELLOW":
+                            self.handleExplodingBrickCollision(brick_array, brick, powerup_array)
+                            continue
+                        else:
+                            if brick.color!="WHITE":
+                                config.SCORE = config.SCORE + 10 * brick.strength
+                            powerup = brick.brickSmash()
+                            if powerup!=None:
+                                powerup_array.append(powerup)
+                            continue
                     horizontal_collision = True
                     # self.velX = -1 * self.velX
-                    powerup = brick.handleCollision() 
-                    if powerup!=None:
-                        powerup_array.append(powerup)
-                    if brick.color != "WHITE":
-                        config.SCORE += 10
-                if ((brick.y - 1 == self.y and self.velY > 0) or (brick.y + 1 == self.y and self.velY < 0)) and (brick.x - config.BALL_WIDTH  <= self.x and brick.x + config.BRICK_WIDTH >= self.x): # the brick is above/below the ball
-                    if self.thruBall == True:
-                        if brick!="WHITE":
-                            config.SCORE = config.SCORE + 10 * brick.strength
-                        powerup = brick.brickSmash()
+                    if brick.color == "YELLOW":
+                        self.handleExplodingBrickCollision(brick_array, brick, powerup_array)
+                    else:
+                        powerup = brick.handleCollision() 
                         if powerup!=None:
                             powerup_array.append(powerup)
-                        continue
+                        if brick.color != "WHITE":
+                            config.SCORE += 10
+                if ((brick.y - 1 == self.y and self.velY > 0) or (brick.y + 1 == self.y and self.velY < 0)) and (brick.x - config.BALL_WIDTH  <= self.x and brick.x + config.BRICK_WIDTH >= self.x): # the brick is above/below the ball
+                    if self.thruBall == True:
+                        if brick.color == "YELLOW":
+                            self.handleExplodingBrickCollision(brick_array, brick, powerup_array)
+                            continue
+                        else:
+                            if brick!="WHITE":
+                                config.SCORE = config.SCORE + 10 * brick.strength
+                            powerup = brick.brickSmash()
+                            if powerup!=None:
+                                powerup_array.append(powerup)
+                            continue
                     vertical_collision = True
                     #self.velY = -1 * self.velY
-                    powerup = brick.handleCollision()
-                    if powerup!=None:
-                        powerup_array.append(powerup)
-                    if brick.color != "WHITE":
-                        config.SCORE += 10
+                    if brick.color == "YELLOW":
+                        self.handleExplodingBrickCollision(brick_array, brick, powerup_array)
+                    else:
+                        powerup = brick.handleCollision()
+                        if powerup!=None:
+                            powerup_array.append(powerup)
+                        if brick.color != "WHITE":
+                            config.SCORE += 10
             else:
                 continue
         if horizontal_collision == True:
